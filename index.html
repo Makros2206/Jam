@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jam Digital Modern</title>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --text-color: #fff;
+            --primary-color: #e94560;
+            --secondary-bg-color: #0f3460;
+            --gradient-bg: linear-gradient(145deg, #0f3460, #16213e);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--gradient-bg);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            transition: background-color 0.5s, color 0.5s;
+            flex-direction: column;
+        }
+
+        .clock-container {
+            background: var(--secondary-bg-color);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            transition: background-color 0.5s ease, color 0.5s ease;
+            width: 350px;
+            margin-bottom: 20px;
+        }
+
+        #clock {
+            font-size: 80px;
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #date {
+            font-size: 24px;
+            color: var(--text-color);
+            transition: color 1s;
+        }
+
+        #day {
+            font-size: 24px;
+            color: var(--text-color);
+            margin-bottom: 10px;
+            transition: color 1s;
+        }
+
+        .border {
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary-color);
+            margin: 20px 0;
+            transition: background-color 0.5s;
+        }
+
+        #theme-selector, #time-mode {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        #theme-selector:hover, #time-mode:hover {
+            background-color: #d13b50;
+            box-shadow: 0 8px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        .manual-time-inputs {
+            display: none;
+            background: var(--secondary-bg-color);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+            text-align: left;
+            width: 350px;
+        }
+
+        .manual-time-inputs label {
+            font-size: 16px;
+            margin-right: 5px;
+        }
+
+        .manual-time-inputs input, .manual-time-inputs select {
+            width: 70px;
+            padding: 8px;
+            border: none;
+            border-radius: 10px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            background-color: var(--primary-color);
+            color: #fff;
+            text-align: center;
+        }
+
+        .manual-time-inputs button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .manual-time-inputs button:hover {
+            background-color: #d13b50;
+            box-shadow: 0 8px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        .team {
+            font-size: 18px;
+            color: var(--text-color);
+            margin-top: 20px;
+            text-align: center;
+            padding: 15px;
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            width: 300px;
+            background-color: var(--secondary-bg-color);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .team-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .team-list li {
+            font-size: 16px;
+            margin-top: 5px;
+        }
+
+        /* Tema terang */
+        .light-theme {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --primary-color: #007bff;
+            --secondary-bg-color: #ffffff;
+            --gradient-bg: linear-gradient(145deg, #ffffff, #e6e6e6);
+        }
+
+        /* Warna hitam untuk tanggal dan hari dalam tema terang */
+        .light-theme #date,
+        .light-theme #day {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="clock-container">
+        <div id="clock"></div> <!-- Elemen untuk menampilkan jam -->
+        <div class="border"></div>
+        <div id="day"></div> <!-- Elemen untuk menampilkan hari -->
+        <div id="date"></div> <!-- Elemen untuk menampilkan tanggal -->
+    </div>
+
+    <div class="team">
+        <p>Nama Kelompok:</p>
+        <ul class="team-list">
+            <li>1. Machrus</li>
+            <li>2. Muhammad Ferdiansya</li>
+            <li>3. Moh Agos Aji Prasetyo</li>
+            <li>4. Alfian Kartiko Putro</li>
+        </ul>
+    </div>
+
+    <script>
+        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        let isManualMode = false;
+        let manualTime = {
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+            date: new Date().getDate(),
+            month: new Date().getMonth() + 1,
+            year: new Date().getFullYear(),
+        };
+
+        // Mengupdate jam setiap detik
+        setInterval(updateClock, 1000);
+
+        // Fungsi untuk mengupdate jam
+        function updateClock() {
+            let now;
+
+            // Ambil waktu berdasarkan mode (manual atau otomatis)
+            if (isManualMode) {
+                // Jika dalam mode manual, tambahkan satu detik ke manualTime setiap kali fungsi dipanggil
+                manualTime.seconds++;
+                if (manualTime.seconds >= 60) {
+                    manualTime.seconds = 0;
+                    manualTime.minutes++;
+                    if (manualTime.minutes >= 60) {
+                        manualTime.minutes = 0;
+                        manualTime.hours++;
+                        if (manualTime.hours >= 24) {
+                            manualTime.hours = 0;
+                            manualTime.date++;
+                            const daysInMonth = new Date(manualTime.year, manualTime.month, 0).getDate();
+                            if (manualTime.date > daysInMonth) {
+                                manualTime.date = 1;
+                                manualTime.month++;
+                                if (manualTime.month > 12) {
+                                    manualTime.month = 1;
+                                    manualTime.year++;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                now = new Date(manualTime.year, manualTime.month - 1, manualTime.date, manualTime.hours, manualTime.minutes, manualTime.seconds);
+            } else {
+                now = new Date();
+            }
+
+            // Update tampilan jam, tanggal, dan hari
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const dayIndex = now.getDay();
+            const day = days[dayIndex];
+            const date = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+
+            // Menampilkan waktu
+            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+            document.getElementById('day').textContent = day;
+            document.getElementById('date').textContent = `${date}/${month}/${year}`;
+        }
+
+        // Fungsi untuk mengubah mode waktu
+        function toggleTimeMode() {
+            isManualMode = !isManualMode;
+            const manualInputs = document.querySelector('.manual-time-inputs');
+            if (isManualMode) {
+                manualInputs.style.display = 'block'; // Tampilkan input manual
+            } else {
+                manualInputs.style.display = 'none'; // Sembunyikan input manual
+            }
+        }
+
+        // Fungsi untuk mengatur waktu manual
+        function setManualTime() {
+            const hourInput = document.getElementById('manual-hours').value;
+            const minuteInput = document.getElementById('manual-minutes').value;
+            const secondInput = document.getElementById('manual-seconds').value;
+            const dateInput = document.getElementById('manual-date').value;
+            const monthInput = document.getElementById('manual-month').value;
+            const yearInput = document.getElementById('manual-year').value;
+
+            manualTime.hours = parseInt(hourInput) || 0;
+            manualTime.minutes = parseInt(minuteInput) || 0;
+            manualTime.seconds = parseInt(secondInput) || 0;
+            manualTime.date = parseInt(dateInput) || new Date().getDate();
+            manualTime.month = parseInt(monthInput) || new Date().getMonth() + 1;
+            manualTime.year = parseInt(yearInput) || new Date().getFullYear();
+        }
+
+        // Fungsi untuk mengganti tema
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+        }
+    </script>
+
+    <div class="manual-time-inputs">
+        <label>Jam:</label>
+        <input type="number" id="manual-hours" min="0" max="23" placeholder="HH">
+        <label>Menit:</label>
+        <input type="number" id="manual-minutes" min="0" max="59" placeholder="MM">
+        <label>Detik:</label>
+        <input type="number" id="manual-seconds" min="0" max="59" placeholder="SS">
+        <br>
+        <label>Tanggal:</label>
+        <input type="number" id="manual-date" min="1" max="31" placeholder="DD">
+        <label>Bulan:</label>
+        <input type="number" id="manual-month" min="1" max="12" placeholder="MM">
+        <label>Tahun:</label>
+        <input type="number" id="manual-year" min="1900" placeholder="YYYY">
+        <br>
+        <button onclick="setManualTime()">Set Waktu</button>
+    </div>
+
+    <button id="time-mode" onclick="toggleTimeMode()">Setting Secara Otomatis/Manual</button>
+    <button id="theme-selector" onclick="toggleTheme()">Ganti Tema</button>
+</body>
+</html>
